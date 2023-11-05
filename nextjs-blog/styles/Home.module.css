@@ -1,0 +1,16 @@
+/* styles/Home.module.css
+.container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.vending, .myItems {
+  flex: 1;
+}
+
+.table {
+  
+  margin-right: 20px; /* or desired spacing 
+} 
+*/
+
