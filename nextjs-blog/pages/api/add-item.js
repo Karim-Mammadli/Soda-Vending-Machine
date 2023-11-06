@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
       await db.collection('MachineItems').insertOne({ id, name, price, quantity });
 
-      res.status(201).send({ message: 'Item added' });
+      res.status(201).send({ message: 'Item added', item: { id, name, price, quantity } });
 
     } catch (error) {
       res.status(500).send(error.message);

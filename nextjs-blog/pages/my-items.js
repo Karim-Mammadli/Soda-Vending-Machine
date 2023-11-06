@@ -1,28 +1,20 @@
-// pages/my-items.js
-
 import React from 'react';
 
-export default function MyItems() {
-  // This would be fetched from the API or database in a full implementation
-  const myPurchases = [
-    { name: 'Coca Cola', quantity: 2 },
-    { name: 'Pepsi', quantity: 1 },
-    // ... other items
-  ];
-
+const MyItems = ({ inventory }) => {
+    console.log("inventory is: ", inventory);
   return (
-    <div className="container">
-      <h1>My Items</h1>
+    <div className="inventory">
+      <h2>Inventory</h2>
       <table>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Quantity</th>
+            <th>Quantity Bought</th>
           </tr>
         </thead>
         <tbody>
-          {myPurchases.map((item, index) => (
-            <tr key={index}>
+          {inventory.map((item) => (
+            <tr key={item.name}>
               <td>{item.name}</td>
               <td>{item.quantity}</td>
             </tr>
@@ -31,4 +23,6 @@ export default function MyItems() {
       </table>
     </div>
   );
-}
+};
+
+export default MyItems;
