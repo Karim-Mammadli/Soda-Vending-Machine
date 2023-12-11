@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
 const MyItems = ({ inventory }) => {
-    console.log("inventory is: ", inventory);
+  console.log("inventory is: ", inventory);
   return (
     <div className="inventory">
       <h2>My Inventory</h2>
@@ -13,12 +13,18 @@ const MyItems = ({ inventory }) => {
           </tr>
         </thead>
         <tbody>
-          {inventory.map((item) => (
-            <tr key={item.name}>
-              <td>{item.name}</td>
-              <td>{item.quantity}</td>
+          {Array.isArray(inventory) ? (
+            inventory.map((item) => (
+              <tr key={item.name}>
+                <td>{item.name}</td>
+                <td>{item.quantity}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="2">Loading inventory...</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
