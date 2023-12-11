@@ -4,7 +4,7 @@ const MyItems = ({ inventory }) => {
     console.log("inventory is: ", inventory);
   return (
     <div className="inventory">
-      <h2>Inventory</h2>
+      <h2>My Inventory</h2>
       <table>
         <thead>
           <tr>

@@ -13,6 +13,19 @@ export default function Home() {
   });
   const [inventory, setInventory] = useState([]);
 
+  // State for the item currently being edited
+  const [editFormData, setEditFormData] = useState({
+    id: "",
+    name: "",
+    price: "",
+    quantity: ""
+  });
+
+  // filtering state
+  const [filterRange, setFilterRange] = useState({ min: 0, max: 0 });
+  const [filteredSodas, setFilteredSodas] = useState([]);
+
+
   const [sodas, setSodas] = useState([
     // //dummies
     // { id: 100, name: 'Coca Cola', price: 3.00, quantity: 8 },
@@ -186,6 +199,59 @@ export default function Home() {
     }
   };
 
+
+  // Handle form data changes
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData({ ...editFormData, [name]: value });
+  };
+
+  // Handle the submission of the edit form
+  const handleEditFormSubmit = async (e) => {
+    e.preventDefault();
+
+    // Ensure that price and quantity are numbers
+    const editedItem = {
+      ...editFormData,
+      price: parseFloat(editFormData.price),
+      quantity: parseInt(editFormData.quantity, 10)
+    };
+
+    // Send PUT request to the server
+    const response = await fetch('/api/edit-item', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editedItem)
+    });
+
+    if (response.ok) {
+      // Update the UI accordingly
+      setSodas(sodas.map(soda => {
+        if (soda.id === editedItem.id) return editedItem;
+        else return soda;
+      }));
+      // Reset the edit form
+      setEditFormData({ id: "", name: "", price: "", quantity: "" });
+    } else {
+      console.error('Failed to edit item');
+    }
+  };
+
+  // Handle the change of the filter range input
+  const handleFilterRangeChange = (e) => {
+    const range = e.target.value.split('-').map(Number);
+    setFilterRange({ min: range[0], max: range[1] });
+  };
+
+  // Function to filter sodas based on price range
+  const handleFilterSodas = () => {
+    const filtered = sodas.filter(soda => {
+      return soda.price >= filterRange.min && soda.price <= filterRange.max;
+    });
+    setFilteredSodas(filtered);
+  };
+
+
   return (
     <div className="container">
       <div className="vending">
@@ -214,6 +280,8 @@ export default function Home() {
             {/* {sodas.map((soda) => ( */}
             {sortedSodas.map((soda) => (
               <tr key={soda.id}>
+                {/* <button onClick={() => handleEditItem(soda)}>Edit</button>{" "} */}
+                {/* Add this button */}
                 <td>{soda.id}</td>
                 <td>{soda.name}</td>
                 <td>
@@ -227,6 +295,8 @@ export default function Home() {
                     <button onClick={() => handleDeleteItem(soda.id)}>Delete</button>
                   </div> */}
                 <td>
+                  {/* <button onClick={() => handleEditItem(soda)}>Edit</button>{" "} */}
+                  {/* Add this */}
                   <BiTrash
                     onClick={() => handleDeleteItem(soda.id)}
                     style={{ cursor: "pointer" }}
@@ -281,6 +351,80 @@ export default function Home() {
           <button type="submit">Buy</button>
         </form>
       </div>
+
+      {/* EDITING FORM */}
+      <div className="edit-item-form">
+        <form onSubmit={handleEditFormSubmit}>
+          <input
+            type="number"
+            name="id"
+            placeholder="ID"
+            value={editFormData.id}
+            onChange={handleEditFormChange}
+            required
+          />
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={editFormData.name}
+            onChange={handleEditFormChange}
+          />
+          <input
+            type="number"
+            step="0.01"
+            name="price"
+            placeholder="Price"
+            value={editFormData.price}
+            onChange={handleEditFormChange}
+          />
+          <input
+            type="number"
+            name="quantity"
+            placeholder="Quantity"
+            value={editFormData.quantity}
+            onChange={handleEditFormChange}
+          />
+          <button type="submit">Edit</button>
+        </form>
+      </div>
+
+      {/* FILTERING FORM */}
+      <div className="filter-section">
+        <input
+          type="text"
+          placeholder="Price Range (2.2-2.7)"
+          onChange={handleFilterRangeChange}
+        />
+        <button onClick={handleFilterSodas}>Filter</button>
+      </div>
+
+      {/* Table to display filtered sodas with the same styling as the vending machine table */}
+    {filteredSodas.length > 0 && (
+      <div className="vend">
+        <h2>Filtered Items</h2>
+        <table className="vend-machine" > {/* Reuse the class from the main table */}
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Quantity Available</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSodas.map((soda) => (
+              <tr key={soda.id}>
+                <td>{soda.id}</td>
+                <td>{soda.name}</td>
+                <td>${soda.price.toFixed(2)}</td>
+                <td>{soda.quantity}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
 
       <MyItems inventory={inventory} />
     </div>

@@ -74,3 +74,38 @@
     background-color: #4CAF50;
     color: white;
   }
+
+
+  .vend, .myItems {
+    flex: 1;
+    margin: 10px;
+  }
+  
+
+  /* Existing styles for .vend-machine */
+  .vend-machine {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    /* width: 100%; Ensure the table uses the full width of the flex item */
+  }
+  
+  .vend-machine th, .vend-machine td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .vend-machine tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .vend-machine tr:hover {
+    background-color: #ddd;
+  }
+  
+  .vend-machine th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #3443e2;
+    color: white;
+  }
