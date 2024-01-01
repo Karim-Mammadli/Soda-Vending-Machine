@@ -129,7 +129,14 @@
   .new-item-form {
     display: flex;
     flex-direction: column;
-    max-width: 30vh;
+    max-width: 35vh;
+    /* margin: auto; */
+  }
+
+  .addButton {
+    /* display: flex; */
+    /* flex-direction: column; */
+    max-width: auto;
     /* margin: auto; */
   }
   

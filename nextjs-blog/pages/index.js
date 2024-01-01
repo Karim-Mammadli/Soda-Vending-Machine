@@ -353,8 +353,7 @@ export default function Home() {
                 </label>
 
                 <label>
-                  Name:
-                  &nbsp;
+                  Name: &nbsp;
                   <input
                     type="text"
                     name="name"
@@ -365,8 +364,7 @@ export default function Home() {
                 </label>
 
                 <label>
-                  Price:
-                  &nbsp;
+                  Price: &nbsp;
                   <input
                     type="number"
                     name="price"
@@ -377,8 +375,7 @@ export default function Home() {
                 </label>
 
                 <label>
-                  Quantity:
-                  &nbsp;
+                  Quantity: &nbsp;
                   <input
                     type="number"
                     name="quantity"
@@ -387,11 +384,11 @@ export default function Home() {
                     onChange={handleNewItemChange}
                   />
                 </label>
-
-                <button className="submit-button" onClick={handleAddItem}>
-                  Add New Item
-                </button>
               </form>
+
+              <button className="addButton" onClick={handleAddItem}>
+                Add New Item
+              </button>
             </div>
           </div>
 
