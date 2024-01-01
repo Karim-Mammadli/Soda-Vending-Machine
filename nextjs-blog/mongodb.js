@@ -20,16 +20,3 @@ async function connectToMongoDB() {
 }
 
 module.exports = connectToMongoDB;
-
-
-// // Import the necessary modules
-// const mongoose = require('mongoose');
-
-
-// // Retrieve the MongoDB URI from the environment variables
-
-
-// // Connect to MongoDB
-// mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
-//   .then(() => console.log('MongoDB connection established'))
-//   .catch(err => console.log('Error connecting to MongoDB: ', err));

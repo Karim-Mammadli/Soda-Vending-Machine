@@ -6,6 +6,7 @@ export default async function handler(req, res) {
       const db = await connectToDatabase();
       const { id } = req.body;
 
+      //parametrized query
       const result = await db.collection('MachineItems').deleteOne({ id });
 
       if (result.deletedCount === 1) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BiSort, BiTrash } from "react-icons/bi";
 import MyItems from "./my-items";
+// import "./NewItemForm.css";
 
 export default function Home() {
   // const [sodas, setSodas] = useState([]);
@@ -18,13 +19,12 @@ export default function Home() {
     id: "",
     name: "",
     price: "",
-    quantity: ""
+    quantity: "",
   });
 
   // filtering state
   const [filterRange, setFilterRange] = useState({ min: 0, max: 0 });
   const [filteredSodas, setFilteredSodas] = useState([]);
-
 
   const [sodas, setSodas] = useState([
     // //dummies
@@ -69,7 +69,7 @@ export default function Home() {
     };
 
     fetchInventory();
-  }, []); // The empty array as a second argument ensures this effect only runs once on mount
+  }, []); // ensures this effect only runs once on mount
 
   /*    HANDLES     */
 
@@ -159,6 +159,13 @@ export default function Home() {
       quantity: parseInt(newItem.quantity, 10),
     };
 
+    // Check if quantity is greater than 0 before making the API call
+    if (itemToAdd.quantity <= 0) {
+      console.error("Quantity must be greater than 0.");
+
+      return;
+    }
+
     const response = await fetch("/api/add-item", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -166,10 +173,19 @@ export default function Home() {
     });
 
     if (response.ok) {
-      setSodas([...sodas, itemToAdd]);
-      setNewItem({ id: "", name: "", price: "", quantity: "" });
+      const responseData = await response.json();
+
+      if (responseData.message === "Item added") {
+        setSodas([...sodas, itemToAdd]);
+        setNewItem({ id: "", name: "", price: "", quantity: "" });
+      } else {
+        console.error("Failed to add item:", responseData.message);
+      }
+    } else if (response.status === 400) {
+      const responseData = await response.json();
+      console.error("Same ID Item Already Exists");
     } else {
-      console.error("Failed to add item");
+      console.error("Failed to add item. Server error.");
     }
   };
 
@@ -199,7 +215,6 @@ export default function Home() {
     }
   };
 
-
   // Handle form data changes
   const handleEditFormChange = (e) => {
     const { name, value } = e.target;
@@ -214,220 +229,276 @@ export default function Home() {
     const editedItem = {
       ...editFormData,
       price: parseFloat(editFormData.price),
-      quantity: parseInt(editFormData.quantity, 10)
+      quantity: parseInt(editFormData.quantity, 10),
     };
 
     // Send PUT request to the server
-    const response = await fetch('/api/edit-item', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editedItem)
+    const response = await fetch("/api/edit-item", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editedItem),
     });
 
     if (response.ok) {
       // Update the UI accordingly
-      setSodas(sodas.map(soda => {
-        if (soda.id === editedItem.id) return editedItem;
-        else return soda;
-      }));
+      setSodas(
+        sodas.map((soda) => {
+          if (soda.id === editedItem.id) return editedItem;
+          else return soda;
+        })
+      );
       // Reset the edit form
       setEditFormData({ id: "", name: "", price: "", quantity: "" });
     } else {
-      console.error('Failed to edit item');
+      console.error("Failed to edit item");
     }
   };
 
   // Handle the change of the filter range input
   const handleFilterRangeChange = (e) => {
-    const range = e.target.value.split('-').map(Number);
+    const range = e.target.value.split("-").map(Number);
     setFilterRange({ min: range[0], max: range[1] });
   };
 
   // Function to filter sodas based on price range
   const handleFilterSodas = () => {
-    const filtered = sodas.filter(soda => {
+    const filtered = sodas.filter((soda) => {
       return soda.price >= filterRange.min && soda.price <= filterRange.max;
     });
     setFilteredSodas(filtered);
   };
 
-
   return (
-    <div className="container">
-      <div className="vending">
-        <h1>Soda Vending Machine</h1>
-        <table className="vending-machine">
-          <thead>
-            <tr>
-              <th>
-                ID <BiSort onClick={() => requestSort("id")} />
-              </th>
-              <th>
-                Name <BiSort onClick={() => requestSort("name")} />
-              </th>
-              <th>
-                Price <BiSort onClick={() => requestSort("price")} />
-              </th>
-              <th>
-                Quantity Available{" "}
-                <BiSort onClick={() => requestSort("quantity")} />
-              </th>
-              {/* <th>Actions</th> Added Actions heading */}
-              <th>Delete</th> {/* Added Delete heading */}
-            </tr>
-          </thead>
-          <tbody>
-            {/* {sodas.map((soda) => ( */}
-            {sortedSodas.map((soda) => (
-              <tr key={soda.id}>
-                {/* <button onClick={() => handleEditItem(soda)}>Edit</button>{" "} */}
-                {/* Add this button */}
-                <td>{soda.id}</td>
-                <td>{soda.name}</td>
-                <td>
-                  $
-                  {typeof soda.price === "number"
-                    ? soda.price.toFixed(2)
-                    : soda.price}
-                </td>
-                <td>{soda.quantity}</td>
-                {/* <div className="item-actions">
+    <>
+      {/* center this div */}
+      <div
+      // style={{
+      //   display: "flex",
+      //   justifyContent: "center",
+      //   alignItems: "center",
+      //   height: "100vh",
+      // }}
+      >
+        <div className="container">
+          <div className="vending">
+            <h1>Soda Vending Machine</h1>
+            <table className="vending-machine">
+              <thead>
+                <tr>
+                  <th>
+                    ID <BiSort onClick={() => requestSort("id")} />
+                  </th>
+                  <th>
+                    Name <BiSort onClick={() => requestSort("name")} />
+                  </th>
+                  <th>
+                    Price <BiSort onClick={() => requestSort("price")} />
+                  </th>
+                  <th>
+                    Quantity Available{" "}
+                    <BiSort onClick={() => requestSort("quantity")} />
+                  </th>
+                  {/* <th>Actions</th> Added Actions heading */}
+                  <th>Delete</th> {/* Added Delete heading */}
+                </tr>
+              </thead>
+              <tbody>
+                {/* {sodas.map((soda) => ( */}
+                {sortedSodas.map((soda) => (
+                  <tr key={soda.id}>
+                    {/* <button onClick={() => handleEditItem(soda)}>Edit</button>{" "} */}
+                    {/* Add this button */}
+                    <td>{soda.id}</td>
+                    <td>{soda.name}</td>
+                    <td>
+                      $
+                      {typeof soda.price === "number"
+                        ? soda.price.toFixed(2)
+                        : soda.price}
+                    </td>
+                    <td>{soda.quantity}</td>
+                    {/* <div className="item-actions">
                     <button onClick={() => handleDeleteItem(soda.id)}>Delete</button>
                   </div> */}
-                <td>
-                  {/* <button onClick={() => handleEditItem(soda)}>Edit</button>{" "} */}
-                  {/* Add this */}
-                  <BiTrash
-                    onClick={() => handleDeleteItem(soda.id)}
-                    style={{ cursor: "pointer" }}
+                    <td>
+                      {/* <button onClick={() => handleEditItem(soda)}>Edit</button>{" "} */}
+                      {/* Add this */}
+                      <BiTrash
+                        onClick={() => handleDeleteItem(soda.id)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <br />
+
+            {/* INPUT FIELDS START HERE */}
+
+            <div className="new-item-form-container">
+              <form className="new-item-form">
+                <label>
+                  ID:
+                  {/* give horizontal space */}
+                  &nbsp;
+                  <input
+                    type="number"
+                    name="id"
+                    placeholder="ID"
+                    value={newItem.id}
+                    onChange={handleNewItemChange}
                   />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </label>
 
-        <div className="new-item-form">
-          <input
-            type="number"
-            name="id"
-            placeholder="ID"
-            value={newItem.id}
-            onChange={handleNewItemChange}
-          />
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={newItem.name}
-            onChange={handleNewItemChange}
-          />
-          <input
-            type="number"
-            name="price"
-            placeholder="Price"
-            value={newItem.price}
-            onChange={handleNewItemChange}
-          />
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Quantity"
-            value={newItem.quantity}
-            onChange={handleNewItemChange}
-          />
+                <label>
+                  Name:
+                  &nbsp;
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    value={newItem.name}
+                    onChange={handleNewItemChange}
+                  />
+                </label>
 
-          <button onClick={handleAddItem}>Submit New Item</button>
+                <label>
+                  Price:
+                  &nbsp;
+                  <input
+                    type="number"
+                    name="price"
+                    placeholder="Price"
+                    value={newItem.price}
+                    onChange={handleNewItemChange}
+                  />
+                </label>
+
+                <label>
+                  Quantity:
+                  &nbsp;
+                  <input
+                    type="number"
+                    name="quantity"
+                    placeholder="Quantity"
+                    value={newItem.quantity}
+                    onChange={handleNewItemChange}
+                  />
+                </label>
+
+                <button className="submit-button" onClick={handleAddItem}>
+                  Add New Item
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <br />
+
+          {/* BUYING FORM */}
+
+          <div>
+            <form onSubmit={handleBuy}>
+              <input
+                type="number"
+                placeholder="Enter soda ID"
+                value={sodaId}
+                onChange={(e) => setSodaId(e.target.value)}
+                required
+              />
+              <button type="submit">Purchase</button>
+            </form>
+          </div>
+
+          <br />
+
+          {/* EDITING FORM */}
+          <div className="edit-item-form">
+            <form onSubmit={handleEditFormSubmit}>
+              <input
+                type="number"
+                name="id"
+                placeholder="ID"
+                value={editFormData.id}
+                onChange={handleEditFormChange}
+                required
+              />
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                value={editFormData.name}
+                onChange={handleEditFormChange}
+              />
+              <input
+                type="number"
+                step="0.01"
+                name="price"
+                placeholder="Price"
+                value={editFormData.price}
+                onChange={handleEditFormChange}
+              />
+              <input
+                type="number"
+                name="quantity"
+                placeholder="Quantity"
+                value={editFormData.quantity}
+                onChange={handleEditFormChange}
+              />
+              <button type="submit">Edit</button>
+            </form>
+          </div>
+
+          {/* some vertical space  */}
+          <br />
+          {/* FILTERING FORM */}
+
+          <div className="filter-section">
+            <input
+              type="text"
+              placeholder="Price Range (2.2-2.7)"
+              onChange={handleFilterRangeChange}
+            />
+            <button onClick={handleFilterSodas}>Filter</button>
+          </div>
+
+          {/* Table to display filtered sodas with the same styling as the vending machine table */}
+          {filteredSodas.length > 0 && (
+            <div className="vend">
+              <h2>Filtered Items</h2>
+              <table className="vend-machine">
+                {" "}
+                {/* Reuse the class from the main table */}
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity Available</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSodas.map((soda) => (
+                    <tr key={soda.id}>
+                      <td>{soda.id}</td>
+                      <td>{soda.name}</td>
+                      <td>${soda.price.toFixed(2)}</td>
+                      <td>{soda.quantity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <MyItems inventory={inventory} />
+
+          {/* add 1 more row about the total price of items listed */}
         </div>
-
-        <form onSubmit={handleBuy}>
-          <input
-            type="number"
-            placeholder="Enter soda ID"
-            value={sodaId}
-            onChange={(e) => setSodaId(e.target.value)}
-            required
-          />
-          <button type="submit">Buy</button>
-        </form>
       </div>
-
-      {/* EDITING FORM */}
-      <div className="edit-item-form">
-        <form onSubmit={handleEditFormSubmit}>
-          <input
-            type="number"
-            name="id"
-            placeholder="ID"
-            value={editFormData.id}
-            onChange={handleEditFormChange}
-            required
-          />
-          <input
-            type="text"
-            name="name"
-            placeholder="Name"
-            value={editFormData.name}
-            onChange={handleEditFormChange}
-          />
-          <input
-            type="number"
-            step="0.01"
-            name="price"
-            placeholder="Price"
-            value={editFormData.price}
-            onChange={handleEditFormChange}
-          />
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Quantity"
-            value={editFormData.quantity}
-            onChange={handleEditFormChange}
-          />
-          <button type="submit">Edit</button>
-        </form>
-      </div>
-
-      {/* FILTERING FORM */}
-      <div className="filter-section">
-        <input
-          type="text"
-          placeholder="Price Range (2.2-2.7)"
-          onChange={handleFilterRangeChange}
-        />
-        <button onClick={handleFilterSodas}>Filter</button>
-      </div>
-
-      {/* Table to display filtered sodas with the same styling as the vending machine table */}
-    {filteredSodas.length > 0 && (
-      <div className="vend">
-        <h2>Filtered Items</h2>
-        <table className="vend-machine" > {/* Reuse the class from the main table */}
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Quantity Available</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSodas.map((soda) => (
-              <tr key={soda.id}>
-                <td>{soda.id}</td>
-                <td>{soda.name}</td>
-                <td>${soda.price.toFixed(2)}</td>
-                <td>{soda.quantity}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-
-      <MyItems inventory={inventory} />
-    </div>
+    </>
   );
 }
 
