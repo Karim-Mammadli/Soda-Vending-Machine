@@ -299,7 +299,7 @@ export default function Home() {
                     <BiSort onClick={() => requestSort("quantity")} />
                   </th>
                   {/* <th>Actions</th> Added Actions heading */}
-                  <th>Delete</th> {/* Added Delete heading */}
+                  <th>Remove</th> {/* Added Delete heading */}
                 </tr>
               </thead>
               <tbody>

@@ -30,6 +30,13 @@ export default async function handler(req, res) {
         );
 
       console.log("updatedItem is:", updatedItem);
+      console.log("updatedItem.quantity is:", updatedItem.quantity);
+
+      // Check if the updated quantity is 0, and delete the item
+      if (updatedItem.quantity === 0) {
+        await db.collection("MachineItems").deleteOne({ id });
+        console.log("Item deleted from the database");
+      }
 
       const inventoryItem = await db
         .collection("Inventory")
